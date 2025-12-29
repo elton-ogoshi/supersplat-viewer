@@ -12,43 +12,16 @@ class AnimState {
 
     frameRate: number;
 
-    keyframes: number[] = [];
-
     result: number[] = [];
 
     position: Vec3 = new Vec3();
 
     target: Vec3 = new Vec3();
 
-    constructor(spline: CubicSpline, duration: number, loopMode: 'none' | 'repeat' | 'pingpong', frameRate: number, keyframes: number[] = []) {
+    constructor(spline: CubicSpline, duration: number, loopMode: 'none' | 'repeat' | 'pingpong', frameRate: number) {
         this.spline = spline;
         this.cursor.reset(duration, loopMode);
         this.frameRate = frameRate;
-        this.keyframes = keyframes;
-    }
-
-    // get the next keyframe after currentTime
-    getNextKeyframe(currentTime: number): number {
-        const frame = currentTime * this.frameRate;
-        for (let i = 0; i < this.keyframes.length; i++) {
-            if (this.keyframes[i] > frame + 0.1) {
-                return this.keyframes[i] / this.frameRate;
-            }
-        }
-        // wrap to first keyframe
-        return this.keyframes.length > 0 ? this.keyframes[0] / this.frameRate : 0;
-    }
-
-    // get the previous keyframe before currentTime
-    getPrevKeyframe(currentTime: number): number {
-        const frame = currentTime * this.frameRate;
-        for (let i = this.keyframes.length - 1; i >= 0; i--) {
-            if (this.keyframes[i] < frame - 0.1) {
-                return this.keyframes[i] / this.frameRate;
-            }
-        }
-        // wrap to last keyframe
-        return this.keyframes.length > 0 ? this.keyframes[this.keyframes.length - 1] / this.frameRate : 0;
     }
 
     // update given delta time
@@ -84,7 +57,7 @@ class AnimState {
 
         const spline = CubicSpline.fromPointsLooping((duration + extra) * frameRate, times, points, smoothness);
 
-        return new AnimState(spline, duration, loopMode, frameRate, times);
+        return new AnimState(spline, duration, loopMode, frameRate);
     }
 }
 
