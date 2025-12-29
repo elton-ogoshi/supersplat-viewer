@@ -65,7 +65,7 @@ class Camera {
 
 interface CameraController {
     onEnter(camera: Camera): void;
-    update(deltaTime: number, inputFrame: CameraFrame, camera: Camera): void;
+    update(deltaTime: number, inputFrame: CameraFrame, camera: Camera, isPaused?: boolean): void;
     onExit(camera: Camera): void;
 }
 

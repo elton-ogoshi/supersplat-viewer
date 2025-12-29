@@ -286,9 +286,9 @@ class Viewer {
             }
         });
 
-        // unpause the animation on first frame
+        // keep animation paused on first frame (navigation is prev/next only)
         events.on('firstFrame', () => {
-            state.animationPaused = !!config.noanim;
+            state.animationPaused = true;
         });
 
         // wait for the model to load
