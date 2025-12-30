@@ -104,7 +104,12 @@ class CameraManager {
 
             const controller = getController(state.cameraMode);
 
-            controller.update(dt, frame, target);
+            // Pass isPaused to anim controller for hover effect
+            if (state.cameraMode === 'anim') {
+                controllers.anim.update(deltaTime, frame, target, state.animationPaused);
+            } else {
+                controller.update(dt, frame, target);
+            }
 
             if (transitionTimer < 1) {
                 // lerp away from previous camera during transition
@@ -130,14 +135,16 @@ class CameraManager {
                     state.cameraMode = 'orbit';
                     controllers.orbit.goto(resetCamera);
                     break;
-                case 'playPause':
+                case 'prevKeyframe':
                     if (state.hasAnimation) {
-                        if (state.cameraMode === 'anim') {
-                            state.animationPaused = !state.animationPaused;
-                        } else {
-                            state.cameraMode = 'anim';
-                            state.animationPaused = false;
-                        }
+                        state.cameraMode = 'anim';
+                        controllers.anim.prev();
+                    }
+                    break;
+                case 'nextKeyframe':
+                    if (state.hasAnimation) {
+                        state.cameraMode = 'anim';
+                        controllers.anim.next();
                     }
                     break;
                 case 'cancel':

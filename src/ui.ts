@@ -34,7 +34,7 @@ const initUI = (global: Global) => {
         'info', 'infoPanel', 'desktopTab', 'touchTab', 'desktopInfoPanel', 'touchInfoPanel',
         'timelineContainer', 'handle', 'time',
         'buttonContainer',
-        'play', 'pause',
+        'prev', 'next',
         'settings', 'settingsPanel',
         'orbitCamera', 'flyCamera',
         'hqCheck', 'hqOption', 'lqCheck', 'lqOption',
@@ -208,36 +208,37 @@ const initUI = (global: Global) => {
 
     // Animation controls
     events.on('hasAnimation:changed', (value, prev) => {
-        // Start and Stop animation
-        dom.play.addEventListener('click', () => {
-            state.cameraMode = 'anim';
-            state.animationPaused = false;
+        // Navigate to previous/next keyframe
+        dom.prev.addEventListener('click', () => {
+            events.fire('inputEvent', 'prevKeyframe');
         });
 
-        dom.pause.addEventListener('click', () => {
-            state.cameraMode = 'anim';
-            state.animationPaused = true;
+        dom.next.addEventListener('click', () => {
+            events.fire('inputEvent', 'nextKeyframe');
         });
 
-        const updatePlayPause = () => {
-            if (state.cameraMode !== 'anim' || state.animationPaused) {
-                dom.play.classList.remove('hidden');
-                dom.pause.classList.add('hidden');
+        const updateAnimControls = () => {
+            // Show prev/next buttons when animation exists
+            if (state.hasAnimation) {
+                dom.prev.classList.remove('hidden');
+                dom.next.classList.remove('hidden');
+                // Show timeline only in anim mode
+                if (state.cameraMode === 'anim') {
+                    dom.timelineContainer.classList.remove('hidden');
+                } else {
+                    dom.timelineContainer.classList.add('hidden');
+                }
             } else {
-                dom.play.classList.add('hidden');
-                dom.pause.classList.remove('hidden');
-            }
-
-            if (state.cameraMode === 'anim') {
-                dom.timelineContainer.classList.remove('hidden');
-            } else {
+                dom.prev.classList.add('hidden');
+                dom.next.classList.add('hidden');
                 dom.timelineContainer.classList.add('hidden');
             }
         };
 
         // Update UI on animation changes
-        events.on('cameraMode:changed', updatePlayPause);
-        events.on('animationPaused:changed', updatePlayPause);
+        events.on('cameraMode:changed', updateAnimControls);
+        // Initialize button visibility
+        updateAnimControls();
 
         const updateSlider = () => {
             dom.handle.style.left = `${state.animationTime / state.animationDuration * 100}%`;
@@ -338,8 +339,8 @@ const initUI = (global: Global) => {
     // tooltips
     const tooltip = new Tooltip(dom.tooltip);
 
-    tooltip.register(dom.play, 'Play', 'top');
-    tooltip.register(dom.pause, 'Pause', 'top');
+    tooltip.register(dom.prev, 'Previous Keyframe', 'top');
+    tooltip.register(dom.next, 'Next Keyframe', 'top');
     tooltip.register(dom.orbitCamera, 'Orbit Camera', 'top');
     tooltip.register(dom.flyCamera, 'Fly Camera', 'top');
     tooltip.register(dom.reset, 'Reset Camera', 'bottom');

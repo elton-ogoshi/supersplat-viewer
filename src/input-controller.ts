@@ -200,9 +200,6 @@ class InputController {
                     case 'r':
                         events.fire('inputEvent', 'reset', event);
                         break;
-                    case ' ':
-                        events.fire('inputEvent', 'playPause', event);
-                        break;
                 }
             }
         });

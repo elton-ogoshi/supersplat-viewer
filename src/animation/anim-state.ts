@@ -12,16 +12,19 @@ class AnimState {
 
     frameRate: number;
 
+    keyframes: number[] = [];
+
     result: number[] = [];
 
     position: Vec3 = new Vec3();
 
     target: Vec3 = new Vec3();
 
-    constructor(spline: CubicSpline, duration: number, loopMode: 'none' | 'repeat' | 'pingpong', frameRate: number) {
+    constructor(spline: CubicSpline, duration: number, loopMode: 'none' | 'repeat' | 'pingpong', frameRate: number, keyframes: number[] = []) {
         this.spline = spline;
         this.cursor.reset(duration, loopMode);
         this.frameRate = frameRate;
+        this.keyframes = keyframes;
     }
 
     // update given delta time
@@ -38,6 +41,28 @@ class AnimState {
             position.set(result[0], result[1], result[2]);
             target.set(result[3], result[4], result[5]);
         }
+    }
+
+    // get time of next keyframe after currentTime
+    getNextKeyframe(currentTime: number): number {
+        const frame = currentTime * this.frameRate;
+        for (let i = 0; i < this.keyframes.length; i++) {
+            if (this.keyframes[i] > frame + 0.1) {
+                return this.keyframes[i] / this.frameRate;
+            }
+        }
+        return this.keyframes[0] / this.frameRate;
+    }
+
+    // get time of previous keyframe before currentTime
+    getPrevKeyframe(currentTime: number): number {
+        const frame = currentTime * this.frameRate;
+        for (let i = this.keyframes.length - 1; i >= 0; i--) {
+            if (this.keyframes[i] < frame - 0.1) {
+                return this.keyframes[i] / this.frameRate;
+            }
+        }
+        return this.keyframes[this.keyframes.length - 1] / this.frameRate;
     }
 
     // construct an animation from a settings track
@@ -57,7 +82,7 @@ class AnimState {
 
         const spline = CubicSpline.fromPointsLooping((duration + extra) * frameRate, times, points, smoothness);
 
-        return new AnimState(spline, duration, loopMode, frameRate);
+        return new AnimState(spline, duration, loopMode, frameRate, times);
     }
 }
 
